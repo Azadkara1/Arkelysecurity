@@ -309,6 +309,38 @@ une ligne de moins dans `pnpm test`.**
 
 ---
 
+## 9 bis. Mobile : ce qui a été testé, et les pièges
+
+Testé en émulation tactile (Edge piloté par le protocole de débogage) à 320,
+360, 375, 390 et 430 px : la mise en page fait exactement la largeur de
+l'écran, aucun défilement latéral. Glissement du doigt sur la grille, appui
+sur « Devis », menu et lien d'ancre vérifiés. **Un vrai téléphone reste à
+essayer** : l'émulation ne remplace ni le clavier virtuel ni le défilement
+inertiel.
+
+Trois pièges déjà rencontrés, à ne pas reproduire :
+
+1. **Une grille sans `grid-cols-1` s'élargit à son contenu.** Sa piste est
+   « auto », donc aussi large que son plus large enfant. Un enfant de 640 px
+   agrandissait toute la page, que son parent soit `overflow-x-auto` ou non.
+   Toute `grid` doit porter un `grid-cols-*` explicite, et les enfants qui
+   contiennent du contenu large un `min-w-0`.
+2. **`hidden` perd contre le `inline-flex` de base de `Bouton`** (même niveau
+   de priorité). Pour masquer un bouton à une largeur donnée, utiliser une
+   variante responsive : `max-md:hidden`, `md:hidden`. Elles l'emportent
+   toujours.
+3. **`touch-action: none` empêche de faire défiler.** Il est posé uniquement
+   sur les cases de la semaine type (`touch-none`), nécessaire pour peindre au
+   doigt, et surtout pas sur le bloc entier.
+
+La grille semaine type passe sous 640 px de 24 colonnes à 8 colonnes sur 3
+lignes par jour, avec l'heure écrite dans chaque case : des cases de 35 px au
+lieu de 11, au-dessus du minimum WCAG 2.2 pour une cible tactile (24 px). Le
+bandeau est compacté de la même façon (boutons plus petits, menu en icône
+seule sous 640 px) pour tenir dans 320 px.
+
+---
+
 ## 10. Conformité
 
 - **Mention CNAPS obligatoire** : numéro d'autorisation et mention précisant

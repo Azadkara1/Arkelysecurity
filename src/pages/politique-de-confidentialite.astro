@@ -68,7 +68,7 @@ const droits = [
           traitements.map((t) => (
             <article class="border-filet border p-8">
               <h3 class="font-display text-xl">{t.finalite}</h3>
-              <dl class="mt-6 grid gap-6 sm:grid-cols-3">
+              <dl class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                   <dt class="micro text-texte-doux">Données</dt>
                   <dd class="mt-2 text-sm">{t.donnees}</dd>
@@ -100,7 +100,7 @@ const droits = [
       </p>
 
       <h2 class="font-display mt-20 text-2xl lg:text-3xl">Vos droits</h2>
-      <ul class="mt-8 grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+      <ul class="mt-8 grid grid-cols-1 gap-px sm:grid-cols-2 lg:grid-cols-3">
         {
           droits.map((droit) => (
             <li class="border-filet text-texte-doux border p-5 text-sm">{droit}</li>

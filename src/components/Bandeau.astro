@@ -36,9 +36,9 @@ const tel = lienTelephone();
 <header
   id="bandeau"
   data-surface="sombre"
-  class="bg-surface/94 border-filet sticky top-0 z-50 w-full border-b backdrop-blur-md"
+  class="bg-surface border-filet sticky top-0 z-50 w-full border-b"
 >
-  <div class="contenu flex h-[var(--spacing-bandeau)] items-center justify-between gap-5">
+  <div class="contenu flex h-[var(--spacing-bandeau)] items-center justify-between gap-3 sm:gap-5">
     <!-- Logo : retour en haut de l'accueil. -->
     <a
       href={surAccueil ? '#accueil' : '/'}
@@ -52,11 +52,11 @@ const tel = lienTelephone();
           width={44}
           height={44}
           loading="eager"
-          class="h-11 w-11 object-contain"
+          class="h-10 w-10 object-contain sm:h-11 sm:w-11"
           aria-hidden="true"
         />
       </span>
-      <MotSymbole taille="bandeau" classe="hidden sm:flex" />
+      <MotSymbole taille="bandeau" classe="max-sm:hidden" />
     </a>
 
     <!-- Navigation large. -->
@@ -78,12 +78,12 @@ const tel = lienTelephone();
     </nav>
 
     <!-- Boutons permanents et commandes. -->
-    <div class="flex shrink-0 items-center gap-3">
+    <div class="flex shrink-0 items-center gap-1.5 sm:gap-3">
       <Bouton
         href={ancre(actionsBandeau.principale.href)}
         variante="plein"
         secondeLigne={entreprise.contact.telephone}
-        classe="hidden md:inline-flex"
+        classe="max-md:hidden"
       >
         {actionsBandeau.principale.libelle}
       </Bouton>
@@ -91,6 +91,7 @@ const tel = lienTelephone();
       <Bouton
         href={ancre(actionsBandeau.principale.href)}
         variante="plein"
+        taille="compacte"
         classe="md:hidden"
         ariaLabel="Aller à la section Contact"
       >
@@ -101,6 +102,7 @@ const tel = lienTelephone();
       <span class="relative">
         <Bouton
           variante="plein"
+          taille="compacte"
           data-infobulle
           aria-describedby="infobulle-devis"
           id="bouton-devis"
@@ -123,7 +125,7 @@ const tel = lienTelephone();
         data-bascule-theme
         aria-label="Passer au thème clair"
         aria-pressed="false"
-        class="border-filet text-texte-doux hover:border-accent-bord hover:text-texte inline-flex h-11 w-11 items-center justify-center border transition-colors duration-[400ms]"
+        class="border-filet text-texte-doux hover:border-accent-bord hover:text-texte inline-flex h-9 w-9 items-center justify-center border transition-colors duration-[400ms] sm:h-11 sm:w-11"
       >
         <!-- Soleil, visible en thème sombre : il propose de passer au clair. -->
         <svg
@@ -158,11 +160,16 @@ const tel = lienTelephone();
       <button
         type="button"
         id="ouvrir-menu"
-        class="border-filet text-texte hover:border-accent-bord border px-4 py-3 text-sm lg:hidden"
+        class="border-filet text-texte hover:border-accent-bord inline-flex h-9 w-9 items-center justify-center border text-sm sm:h-auto sm:w-auto sm:px-4 sm:py-3 lg:hidden"
         aria-expanded="false"
         aria-controls="panneau-menu"
+        aria-label="Ouvrir le menu"
       >
-        Menu
+        <!-- Icône seule sous 640 px : le mot « Menu » ne tient pas à côté des deux boutons. -->
+        <svg viewBox="0 0 24 24" class="h-5 w-5 sm:hidden" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+        <span class="hidden sm:inline">Menu</span>
       </button>
     </div>
   </div>

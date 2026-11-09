@@ -16,6 +16,8 @@ interface Props {
   href?: string;
   type?: 'button' | 'submit';
   variante?: 'plein' | 'contour' | 'discret';
+  /** `compacte` : plus petit sous 768 px, pour que le bandeau tienne sur un téléphone. */
+  taille?: 'normale' | 'compacte';
   /** Seconde ligne, plus petite. Sert au numéro de téléphone du bandeau. */
   secondeLigne?: string;
   ariaLabel?: string;
@@ -31,6 +33,7 @@ const {
   href,
   type = 'button',
   variante = 'contour',
+  taille = 'normale',
   secondeLigne,
   ariaLabel,
   desactive = false,
@@ -44,15 +47,20 @@ const commun =
 
 const variantes = {
   // Aplat d'accent : le texte passe en `sur-accent`, noir dans les deux thèmes.
-  plein: 'bg-accent text-sur-accent px-7 py-3.5 text-sm font-medium hover:opacity-85',
-  contour:
-    'border border-accent-bord px-7 py-3.5 text-sm font-medium text-current hover:bg-accent/10',
+  plein: 'bg-accent text-sur-accent font-medium hover:opacity-85',
+  contour: 'border border-accent-bord font-medium text-current hover:bg-accent/10',
   discret: 'text-sm font-medium underline-offset-4 hover:underline text-current',
+} as const;
+
+const tailles = {
+  normale: 'px-7 py-3.5 text-sm',
+  compacte: 'px-2.5 py-3 text-xs md:px-7 md:py-3.5 md:text-sm',
 } as const;
 
 const classes = [
   commun,
   variantes[variante],
+  variante === 'discret' ? '' : tailles[taille],
   desactive ? 'opacity-45 cursor-not-allowed' : '',
   classe,
 ]

@@ -2,10 +2,23 @@
 /**
  * Grille « semaine type » du formulaire de contact.
  *
- * Grille 7 jours sur 24 heures : cellules compactes, mêmes couleurs que le
- * reste du site. Le visiteur clique ou glisse pour
- * colorer les heures souhaitées. Rien d'autre : pas de nombre de postes, pas
- * de calcul, pas de résultat.
+ * Grille 7 jours sur 24 heures, mêmes couleurs que le reste du site. Le
+ * visiteur clique ou glisse pour colorer les heures souhaitées. Rien d'autre :
+ * pas de nombre de postes, pas de calcul, pas de résultat.
+ *
+ * MOBILE : sous 640 px, 24 colonnes ne tiennent pas dans l'écran avec des
+ * cases utilisables (11 px de large, bien en dessous du minimum WCAG 2.2 de
+ * 24 px pour une cible tactile). Chaque jour passe donc sur TROIS lignes de
+ * 8 heures (0 h à 7 h, 8 h à 15 h, 16 h à 23 h), ce qui donne des cases d'environ
+ * 35 px, sans aucun défilement latéral. L'heure est écrite dans chaque case, ce
+ * qui rend la grille lisible sans règle graduée. Les boutons restent dans
+ * l'ordre des heures dans le DOM : seule la grille CSS change, la logique et le
+ * clavier ne bougent pas.
+ *
+ * `touch-none` (touch-action: none) n'est posé QUE sur les cases, pas sur la
+ * colonne des jours : sans cela, le doigt ne pourrait pas glisser pour peindre,
+ * mais la colonne de gauche reste une zone par laquelle on peut faire défiler
+ * la page.
  *
  * Les deux champs cachés partent avec le formulaire :
  *   `semaine_type`      un résumé lisible, pour que le courriel se lise sans
@@ -20,57 +33,61 @@ const JOURS_COURTS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const heures = Array.from({ length: 24 }, (_, h) => h);
 ---
 
-<div data-semaine-type-bloc>
+<div data-semaine-type-bloc class="max-w-full min-w-0">
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
       <p class="micro text-accent-texte">Semaine type</p>
       <p class="text-texte-doux mesure mt-3 text-sm">
-        Indiquez les heures que vous souhaitez couvrir. Cliquez ou glissez sur
-        la grille, ou déplacez-vous aux flèches du clavier et basculez une
-        case avec la barre d’espace.
+        Indiquez les heures que vous souhaitez couvrir. Touchez ou faites
+        glisser le doigt (ou la souris) sur la grille. Au clavier, déplacez-vous
+        aux flèches et basculez une case avec la barre d’espace.
       </p>
     </div>
     <button
       type="button"
       data-semaine-effacer
-      class="micro border-filet text-texte-doux hover:border-accent-bord hover:text-texte border px-4 py-2.5"
+      class="micro border-filet text-texte-doux hover:border-accent-bord hover:text-texte border px-4 py-3"
     >
       Tout effacer
     </button>
   </div>
 
-  <div class="mt-8 overflow-x-auto pb-2">
-    <div data-semaine-type class="min-w-[640px] select-none" style="touch-action: none;">
-      <!-- Règle des heures -->
-      <div class="flex items-end gap-px pl-14">
+  <div data-semaine-type class="mt-8 select-none">
+    <!-- Règle des heures, dès 640 px seulement : sous cette largeur, l'heure est
+         écrite dans chaque case. -->
+    <div class="hidden items-end gap-px pl-14 sm:flex" aria-hidden="true">
+      <div class="grid flex-1 grid-cols-24 gap-px">
         {
           heures.map((h) => (
-            <span class="micro text-texte-doux w-full text-center" aria-hidden="true">
-              {h % 3 === 0 ? h : ''}
-            </span>
+            <span class="micro text-texte-doux text-center">{h % 3 === 0 ? h : ''}</span>
           ))
         }
       </div>
+    </div>
 
-      {
-        JOURS.map((jour, indexJour) => (
-          <div class="mt-px flex items-center gap-px">
-            <span class="micro text-texte-doux w-14 shrink-0 pr-2 text-right">
-              {JOURS_COURTS[indexJour]}
-            </span>
+    {
+      JOURS.map((jour, indexJour) => (
+        <div class="mt-2 flex items-center gap-1 sm:mt-px sm:gap-px">
+          <span class="micro text-texte-doux w-10 shrink-0 pr-1 text-right sm:w-14 sm:pr-2">
+            {JOURS_COURTS[indexJour]}
+          </span>
+          <div class="grid flex-1 touch-none grid-cols-8 gap-px sm:grid-cols-24">
             {heures.map((heure) => (
               <button
                 type="button"
                 data-creneau={indexJour * 24 + heure}
                 aria-pressed="false"
                 aria-label={`${jour}, ${heure} heure`}
-                class="bg-surface-2 border-filet hover:border-accent-bord aria-pressed:bg-accent/35 aria-pressed:border-accent-bord h-6 w-full border transition-colors duration-200"
-              />
+                class="bg-surface-2 border-filet hover:border-accent-bord aria-pressed:bg-accent/35 aria-pressed:border-accent-bord text-texte-doux aria-pressed:text-texte h-7 w-full border text-[11px] leading-none transition-colors duration-200 sm:h-6"
+              >
+                <span aria-hidden="true" class="sm:hidden">{heure}</span>
+              </button>
             ))}
           </div>
-        ))
-      }
-    </div>
+        </div>
+      ))
+    }
+
   </div>
 
   <p class="micro text-accent-texte mt-5" aria-live="polite" data-semaine-apercu>
