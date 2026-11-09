@@ -1,0 +1,231 @@
+---
+/**
+ * Bandeau de navigation fixe.
+ *
+ * LE SITE EST UNE PAGE UNIQUE : les quatre liens sont des ancres de
+ * l'accueil, pas des routes. Depuis une page légale, ils repassent par `/`
+ * pour revenir à l'accueil et descendre à la bonne section.
+ *
+ * Décisions en vigueur :
+ *   - quatre liens seulement : Accueil, Nos prestations, Secteurs, Contact ;
+ *   - deux boutons permanents, tous les deux en DORÉ PLEIN ;
+ *   - « Contactez-nous » descend vers la section Contact ;
+ *   - « Devis » ne mène nulle part : au clic, une infobulle « Évolution à
+ *     venir ». C'est un <button>, pas un <a>, pour qu'aucun clic milieu
+ *     n'ouvre une page inexistante ;
+ *   - toujours NOIR, y compris en thème clair (data-surface="sombre") : le
+ *     logo fourni a un fond noir opaque incrusté, il ne passe que sur noir ;
+ *   - un bouton « Changer de thème ».
+ *
+ * Le bandeau ne se masque jamais au défilement.
+ */
+import { Image } from 'astro:assets';
+import blason from '@assets/logo/arkelys-blason.png';
+import { entreprise, lienTelephone } from '@data/entreprise';
+import { navigation, actionsBandeau } from '@data/site';
+import MotSymbole from '@components/MotSymbole.astro';
+import Bouton from '@components/Bouton.astro';
+
+const surAccueil = Astro.url.pathname === '/' || Astro.url.pathname === '';
+/** Depuis une page légale, l'ancre doit repasser par l'accueil. */
+const ancre = (href: string) => (surAccueil ? href : `/${href}`);
+
+const tel = lienTelephone();
+---
+
+<header
+  id="bandeau"
+  data-surface="sombre"
+  class="bg-surface/94 border-filet sticky top-0 z-50 w-full border-b backdrop-blur-md"
+>
+  <div class="contenu flex h-[var(--spacing-bandeau)] items-center justify-between gap-5">
+    <!-- Logo : retour en haut de l'accueil. -->
+    <a
+      href={surAccueil ? '#accueil' : '/'}
+      class="flex shrink-0 items-center gap-3"
+      aria-label={`${entreprise.nom}, retour en haut`}
+    >
+      <span class="relative inline-flex shrink-0">
+        <Image
+          src={blason}
+          alt=""
+          width={44}
+          height={44}
+          loading="eager"
+          class="h-11 w-11 object-contain"
+          aria-hidden="true"
+        />
+      </span>
+      <MotSymbole taille="bandeau" classe="hidden sm:flex" />
+    </a>
+
+    <!-- Navigation large. -->
+    <nav aria-label="Navigation principale" class="hidden lg:block">
+      <ul class="flex items-center gap-7">
+        {
+          navigation.map((lien) => (
+            <li>
+              <a
+                href={ancre(lien.href)}
+                class="text-texte-doux hover:text-texte text-sm transition-colors duration-[400ms]"
+              >
+                {lien.libelle}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Boutons permanents et commandes. -->
+    <div class="flex shrink-0 items-center gap-3">
+      <Bouton
+        href={ancre(actionsBandeau.principale.href)}
+        variante="plein"
+        secondeLigne={entreprise.contact.telephone}
+        classe="hidden md:inline-flex"
+      >
+        {actionsBandeau.principale.libelle}
+      </Bouton>
+
+      <Bouton
+        href={ancre(actionsBandeau.principale.href)}
+        variante="plein"
+        classe="md:hidden"
+        ariaLabel="Aller à la section Contact"
+      >
+        Contact
+      </Bouton>
+
+      <!-- « Devis » : inerte, infobulle au clic. -->
+      <span class="relative">
+        <Bouton
+          variante="plein"
+          data-infobulle
+          aria-describedby="infobulle-devis"
+          id="bouton-devis"
+        >
+          {actionsBandeau.secondaire.libelle}
+        </Bouton>
+        <span
+          id="infobulle-devis"
+          role="status"
+          data-visible="non"
+          class="bg-surface-2 border-accent-bord text-texte pointer-events-none absolute top-full right-0 z-10 mt-2 w-max max-w-[14rem] border px-3 py-2 text-xs opacity-0 transition-opacity duration-300 data-[visible=oui]:opacity-100"
+        >
+          {actionsBandeau.secondaire.message}
+        </span>
+      </span>
+
+      <!-- Bascule de thème. -->
+      <button
+        type="button"
+        data-bascule-theme
+        aria-label="Passer au thème clair"
+        aria-pressed="false"
+        class="border-filet text-texte-doux hover:border-accent-bord hover:text-texte inline-flex h-11 w-11 items-center justify-center border transition-colors duration-[400ms]"
+      >
+        <!-- Soleil, visible en thème sombre : il propose de passer au clair. -->
+        <svg
+          viewBox="0 0 24 24"
+          class="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          aria-hidden="true"
+          data-icone="soleil"
+        >
+          <circle cx="12" cy="12" r="4.2"></circle>
+          <path
+            d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"
+            stroke-linecap="round"></path>
+        </svg>
+        <!-- Lune, visible en thème clair. -->
+        <svg
+          viewBox="0 0 24 24"
+          class="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          aria-hidden="true"
+          data-icone="lune"
+        >
+          <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4Z" stroke-linejoin="round"
+          ></path>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        id="ouvrir-menu"
+        class="border-filet text-texte hover:border-accent-bord border px-4 py-3 text-sm lg:hidden"
+        aria-expanded="false"
+        aria-controls="panneau-menu"
+      >
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Panneau plein écran, sous 1024 px. -->
+<div
+  id="panneau-menu"
+  data-surface="sombre"
+  hidden
+  class="bg-surface fixed inset-0 z-[60] overflow-y-auto"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation"
+>
+  <div class="contenu flex min-h-dvh flex-col py-8">
+    <div class="flex items-center justify-between">
+      <MotSymbole taille="bandeau" />
+      <button
+        type="button"
+        id="fermer-menu"
+        class="border-filet text-texte hover:border-accent-bord border px-4 py-3 text-sm"
+      >
+        Fermer
+      </button>
+    </div>
+
+    <nav aria-label="Navigation principale (menu)" class="mt-16 flex-1">
+      <ul class="flex flex-col gap-8">
+        {
+          navigation.map((lien, index) => (
+            <li>
+              <a href={ancre(lien.href)} class="group flex items-baseline gap-4">
+                <span class="micro text-accent-texte">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="font-display text-texte group-hover:text-accent-texte text-3xl">
+                  {lien.libelle}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <p class="micro text-texte-doux mt-12">
+      {entreprise.contact.interlocuteur}, {entreprise.contact.telephone}
+    </p>
+    {
+      tel && (
+        <p class="micro text-accent-texte mt-3">
+          <a href={tel}>Appeler</a>
+        </p>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  /* Une seule icône à la fois, pilotée par le thème. */
+  :global(html[data-theme='sombre']) [data-icone='lune'],
+  :global(html[data-theme='clair']) [data-icone='soleil'] {
+    display: none;
+  }
+</style>

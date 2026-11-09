@@ -1,0 +1,82 @@
+---
+/**
+ * Bouton, trois variantes.
+ *
+ * `plein`   : aplat d'accent, texte sombre. Les deux boutons du bandeau
+ *             (« Contactez-nous » et « Devis ») sont désormais pleins, ainsi
+ *             que l'action principale du hero.
+ * `contour` : bordure d'accent, fond transparent.
+ * `discret` : texte souligné au survol, sans boîte.
+ *
+ * Rend un <a> si `href` est fourni, sinon un <button>. Un bouton qui ne mène
+ * nulle part ne doit JAMAIS être un <a> : un clic milieu ouvrirait une page
+ * inexistante.
+ */
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  variante?: 'plein' | 'contour' | 'discret';
+  /** Seconde ligne, plus petite. Sert au numéro de téléphone du bandeau. */
+  secondeLigne?: string;
+  ariaLabel?: string;
+  /** Grise le bouton et le rend inopérant. */
+  desactive?: boolean;
+  classe?: string;
+  id?: string;
+  /** Attributs supplémentaires transmis tels quels (data-*, aria-*...). */
+  [attribut: string]: unknown;
+}
+
+const {
+  href,
+  type = 'button',
+  variante = 'contour',
+  secondeLigne,
+  ariaLabel,
+  desactive = false,
+  classe = '',
+  id,
+  ...reste
+} = Astro.props;
+
+const commun =
+  'inline-flex flex-col items-center justify-center text-center transition-colors duration-[400ms]';
+
+const variantes = {
+  // Aplat d'accent : le texte passe en `sur-accent`, noir dans les deux thèmes.
+  plein: 'bg-accent text-sur-accent px-7 py-3.5 text-sm font-medium hover:opacity-85',
+  contour:
+    'border border-accent-bord px-7 py-3.5 text-sm font-medium text-current hover:bg-accent/10',
+  discret: 'text-sm font-medium underline-offset-4 hover:underline text-current',
+} as const;
+
+const classes = [
+  commun,
+  variantes[variante],
+  desactive ? 'opacity-45 cursor-not-allowed' : '',
+  classe,
+]
+  .filter(Boolean)
+  .join(' ');
+
+// Un bouton désactivé ne doit pas rester un lien actif.
+const Balise = href && !desactive ? 'a' : 'button';
+---
+
+<Balise
+  id={id}
+  class={classes}
+  aria-label={ariaLabel}
+  {...reste}
+  {...href && !desactive ? { href } : { type, disabled: desactive || undefined }}
+>
+  <span><slot /></span>
+  {
+    secondeLigne && (
+      <span class="micro mt-1 opacity-75" aria-hidden="true">
+        {secondeLigne}
+      </span>
+    )
+  }
+  {secondeLigne && <span class="sr-only">{secondeLigne}</span>}
+</Balise>

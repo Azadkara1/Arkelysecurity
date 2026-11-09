@@ -1,0 +1,162 @@
+---
+/**
+ * Gabarit de base. Trois pages passent par ici : l'accueil, et les deux
+ * pages légales.
+ *
+ * Porte le <head> (titre, description, canonique, Open Graph, JSON-LD), le
+ * lien d'évitement, le bandeau fixe, le pied de page, les transitions de vue
+ * et l'initialisation des scripts.
+ *
+ * Aucun appel à un domaine tiers : ni police, ni carte, ni script.
+ */
+import { ClientRouter } from 'astro:transitions';
+import '@/styles/global.css';
+import { entreprise } from '@data/entreprise';
+import Bandeau from '@components/Bandeau.astro';
+import PiedDePage from '@components/PiedDePage.astro';
+
+interface Props {
+  /** <title> rédigé, unique. Jamais généré automatiquement. */
+  titre: string;
+  /** <meta description> rédigée, unique. */
+  description: string;
+  imageOg?: string;
+  /** Fil d'Ariane, hors « Accueil » qui est ajouté automatiquement. */
+  filAriane?: { libelle: string; href: string }[];
+  sansIndexation?: boolean;
+}
+
+const {
+  titre,
+  description,
+  imageOg = '/og-defaut.jpg',
+  filAriane = [],
+  sansIndexation = false,
+} = Astro.props;
+
+const canonique =
+  new URL(Astro.url.pathname, Astro.site).href.replace(/\/$/, '') || Astro.site?.href;
+const urlImage = new URL(imageOg, Astro.site).href;
+
+/** Les champs encore en 'XX' sont omis : publier un SIRET factice dans des
+ *  données structurées serait pire que de ne rien publier. */
+const estRenseigne = (valeur: string) => !/\bXX\b/.test(valeur);
+
+const ficheEtablissement: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  additionalType: 'https://www.productontology.org/id/Security_company',
+  name: entreprise.nom,
+  description,
+  url: Astro.site?.href,
+  image: urlImage,
+  slogan: entreprise.baseline,
+  email: entreprise.contact.email,
+};
+
+if (estRenseigne(entreprise.contact.telephone)) {
+  ficheEtablissement['telephone'] = entreprise.contact.telephone;
+}
+
+if (estRenseigne(entreprise.adresse.ville)) {
+  ficheEtablissement['address'] = {
+    '@type': 'PostalAddress',
+    streetAddress: entreprise.adresse.rue,
+    postalCode: entreprise.adresse.cp,
+    addressLocality: entreprise.adresse.ville,
+    addressCountry: 'FR',
+  };
+}
+
+if (entreprise.zoneIntervention.departements.some(estRenseigne)) {
+  ficheEtablissement['areaServed'] = entreprise.zoneIntervention.departements.map((d) => ({
+    '@type': 'AdministrativeArea',
+    name: d,
+  }));
+}
+
+const filComplet = [{ libelle: 'Accueil', href: '/' }, ...filAriane];
+const filStructure = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: filComplet.map((etape, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: etape.libelle,
+    item: new URL(etape.href, Astro.site).href,
+  })),
+};
+---
+
+<!doctype html>
+<html lang="fr" data-theme="sombre">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titre}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonique} />
+    {sansIndexation && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta name="theme-color" content="#0b0b0c" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={entreprise.nom} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content={titre} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonique} />
+    <meta property="og:image" content={urlImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titre} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={urlImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(ficheEtablissement)} is:inline />
+    <script type="application/ld+json" set:html={JSON.stringify(filStructure)} is:inline />
+
+    {/*
+      Thème posé avant le premier rendu, depuis un fichier statique et non
+      un script inline : cela évite d'ouvrir 'unsafe-inline' dans la
+      politique de sécurité du contenu. Sans defer ni async, volontairement.
+    */}
+    <script src="/theme-init.js" is:inline></script>
+
+    <ClientRouter />
+  </head>
+
+  <body class="bg-surface text-texte min-h-dvh">
+    <a href="#contenu-principal" class="lien-evitement">Aller au contenu</a>
+
+    <Bandeau />
+
+    <main id="contenu-principal" tabindex="-1">
+      <slot />
+    </main>
+
+    <PiedDePage />
+
+    <script>
+      import { initialiserApparitions } from '@/lib/apparition';
+      import { initialiserMenuMobile } from '@/lib/menu-mobile';
+      import { initialiserTheme } from '@/lib/theme';
+      import { initialiserInfobulles } from '@/lib/infobulle';
+      import { initialiserSemaineType } from '@/lib/semaine-type';
+
+      function demarrer() {
+        initialiserTheme();
+        initialiserMenuMobile();
+        initialiserInfobulles();
+        initialiserSemaineType();
+        initialiserApparitions();
+      }
+
+      demarrer();
+      document.addEventListener('astro:page-load', demarrer);
+    </script>
+  </body>
+</html>

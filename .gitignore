@@ -1,0 +1,21 @@
+# build
+dist/
+.astro/
+.netlify/
+
+# deps
+node_modules/
+
+# environnement
+.env
+.env.*
+!.env.example
+
+# système
+.DS_Store
+Thumbs.db
+
+# éditeurs
+.vscode/*
+!.vscode/extensions.json
+.idea/

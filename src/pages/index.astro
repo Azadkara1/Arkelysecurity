@@ -1,0 +1,345 @@
+---
+/**
+ * LA page. Le site entier tient ici.
+ *
+ * Quatre sections, dans cet ordre, chacune cible d'un lien du bandeau :
+ *   #accueil      le hero
+ *   #prestations  les quatre métiers, cartes NON cliquables
+ *   #secteurs     le bandeau de logos défilant
+ *   #contact      le formulaire, en dernier
+ *
+ * Aucun lien ne sort de cette page, sauf les deux pages légales depuis le
+ * pied de page.
+ *
+ * RÈGLE CLIENT : aucun titre, aucune accroche, aucune légende ne présente la
+ * nuit comme une spécialité.
+ */
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+import Base from '@layouts/Base.astro';
+import Bouton from '@components/Bouton.astro';
+import Section from '@components/Section.astro';
+import PhotoPlaceholder from '@components/PhotoPlaceholder.astro';
+import BandeauLogos from '@components/BandeauLogos.astro';
+import SemaineType from '@components/SemaineType.astro';
+import { entreprise, lienTelephone } from '@data/entreprise';
+import { prestations } from '@data/prestations';
+
+const tel = lienTelephone();
+
+/**
+ * La plaquette est fournie par le client plus tard. Tant qu'elle manque, le
+ * bouton reste visible mais désactivé. `pnpm run check:xx` signale le
+ * fichier absent.
+ */
+const CHEMIN_PLAQUETTE = '/plaquette-arkelys-security.pdf';
+const plaquetteDisponible = existsSync(
+  fileURLToPath(new URL(`../../public${CHEMIN_PLAQUETTE}`, import.meta.url)),
+);
+
+const champ =
+  'border-bord-champ bg-surface-2 text-texte focus:border-accent-bord mt-3 w-full border px-4 py-3 outline-none transition-colors duration-[400ms]';
+---
+
+<Base
+  titre="ARKELYS SECURITY, sécurité privée, surveillance et SSIAP"
+  description="Société de sécurité privée : surveillance et gardiennage, sécurité incendie SSIAP, sécurité événementielle et prestations cynophiles. Dispositifs construits après visite du site."
+>
+  <!-- ══ Accueil ══════════════════════════════════════════════════════ -->
+  <section id="accueil" class="bg-surface text-texte grain">
+    <div class="contenu section-y">
+      <div class="grid gap-16 lg:grid-cols-12 lg:gap-12">
+        <div class="lg:col-span-7">
+          <p class="micro text-accent-texte">Sécurité privée, {entreprise.baseline}</p>
+
+          <h1 class="font-display mt-8 text-4xl leading-[0.95] sm:text-5xl lg:text-6xl">
+            Un dispositif se prépare avant la première vacation.
+          </h1>
+
+          <p class="mesure text-texte-doux mt-10 text-lg">
+            Surveillance et gardiennage, sécurité incendie SSIAP, événementiel,
+            cynophile. Nous construisons le dispositif à partir de votre site,
+            de ses accès, de ses locaux techniques et de ses heures creuses,
+            puis nous remettons les consignes aux équipes avant le démarrage.
+          </p>
+
+          <p class="mesure text-texte-doux mt-6">
+            Ce que nous pouvons estimer, nous l’estimons. Ce qui demande une
+            visite, nous le disons.
+          </p>
+
+          <div class="mt-12 flex flex-wrap gap-4">
+            <Bouton href="#contact" variante="plein">Contactez-nous</Bouton>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <PhotoPlaceholder
+            fichier="hero-ronde-jour.jpg"
+            cadrage="Agent de dos en ronde extérieure le long d'un bâtiment, de jour. Lumière naturelle, l'agent travaille et ne pose pas."
+            format="4/5"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Nos prestations ══════════════════════════════════════════════ -->
+  <Section
+    id="prestations"
+    fond="creuse"
+    numero="01"
+    surtitre="Nos prestations"
+    titre="Quatre métiers, quatre qualifications"
+  >
+    <p class="mesure text-texte-doux mt-8">
+      La surveillance, la sécurité incendie, l’événementiel et le cynophile ne
+      s’improvisent pas l’un dans l’autre : chacun a sa carte
+      professionnelle, sa formation et ses gestes. Nous affectons la
+      qualification que le site exige, pas celle qui est disponible.
+    </p>
+
+    {/*
+      Cartes NON cliquables : ni lien, ni bouton, ni page de détail.
+      Une photo, un titre, une description. Rien de plus.
+    */}
+    <ul class="mt-16 grid gap-px lg:grid-cols-2">
+      {
+        prestations.map((prestation, index) => (
+          <li class="apparition border-filet border" data-apparition>
+            <PhotoPlaceholder
+              fichier={prestation.photo}
+              cadrage={prestation.cadrage}
+              format="16/9"
+              classe="border-0 border-b"
+            />
+            <div class="p-8 lg:p-10">
+              <p class="micro text-accent-texte">{String(index + 1).padStart(2, '0')}</p>
+              <h3 class="font-display mt-5 text-2xl lg:text-3xl">{prestation.titre}</h3>
+              <p class="text-texte-doux mesure mt-5 text-sm">{prestation.description}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <!-- ══ Secteurs ═════════════════════════════════════════════════════ -->
+  <section id="secteurs" class="bg-surface text-texte grain">
+    <hr class="filet" />
+    <div class="section-y">
+      <div class="contenu">
+        <p class="flex items-baseline gap-4">
+          <span class="micro text-accent-texte">02</span><span class="micro text-texte-doux"
+            >Secteurs</span
+          >
+        </p>
+        <h2 class="font-display mt-6 text-3xl leading-[0.95] lg:text-5xl">
+          Des sites qui ne se surveillent pas de la même façon
+        </h2>
+        <p class="mesure text-texte-doux mt-8">
+          Un hôtel n’est jamais vide, un entrepôt l’est presque toujours, un
+          restaurant concentre ses flux sur quelques heures. Le dispositif suit
+          le site, pas l’inverse.
+        </p>
+      </div>
+
+      <div class="mt-20">
+        <BandeauLogos />
+      </div>
+
+      <p class="contenu micro text-texte-doux mt-10">
+        Les noms et logos de clients ne sont affichés qu’avec leur accord écrit.
+      </p>
+    </div>
+  </section>
+
+, en dernier ══════════════════════════════════════════ -->
+  <section id="contact" class="bg-surface text-texte grain">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <div class="grid gap-16 lg:grid-cols-12">
+        <!-- Formulaire -->
+        <div class="lg:col-span-8">
+          <p class="flex items-baseline gap-4">
+            <span class="micro text-accent-texte">03</span><span class="micro text-texte-doux"
+              >Contact</span
+            >
+          </p>
+          <h2 class="font-display mt-6 text-3xl leading-[0.95] lg:text-5xl">
+            Décrivez-nous votre site
+          </h2>
+          <p class="mesure text-texte-doux mt-8">
+            Quelques lignes suffisent pour cadrer le besoin. Nous vous
+            rappelons, puis nous convenons d’une visite : c’est sur place que se
+            décide un dispositif.
+          </p>
+
+          <form
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="champ-secondaire"
+            class="mt-14 grid gap-7"
+          >
+            <input type="hidden" name="form-name" value="contact" />
+
+            <!-- Piège à robots : invisible pour un humain, rempli par un script. -->
+            <p class="hidden" aria-hidden="true">
+              <label>Ne pas remplir <input name="champ-secondaire" tabindex="-1" /></label>
+            </p>
+
+            <div class="grid gap-7 sm:grid-cols-2">
+              <div>
+                <label for="nom" class="micro text-accent-texte block">Nom et prénom</label>
+                <input id="nom" name="nom" type="text" required autocomplete="name" class={champ} />
+              </div>
+              <div>
+                <label for="societe" class="micro text-accent-texte block">Société</label>
+                <input
+                  id="societe"
+                  name="societe"
+                  type="text"
+                  autocomplete="organization"
+                  class={champ}
+                />
+              </div>
+              <div>
+                <label for="telephone" class="micro text-accent-texte block">Téléphone</label>
+                <input id="telephone" name="telephone" type="tel" autocomplete="tel" class={champ} />
+              </div>
+              <div>
+                <label for="email" class="micro text-accent-texte block">Courriel</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  class={champ}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="site" class="micro text-accent-texte block">
+                Votre site : type, surface approximative, commune
+              </label>
+              <input id="site" name="site" type="text" class={champ} />
+            </div>
+
+            <div>
+              <label for="type_missions" class="micro text-accent-texte block">
+                Type de missions
+              </label>
+              <textarea
+                id="type_missions"
+                name="type_missions"
+                rows="4"
+                placeholder="Par exemple : accueil et filtrage en journée, rondes et levée de doute, poste de sécurité incendie."
+                class={champ}></textarea>
+            </div>
+
+            <div>
+              <label for="message" class="micro text-accent-texte block">Votre besoin</label>
+              <textarea id="message" name="message" rows="5" required class={champ}></textarea>
+            </div>
+
+            <!-- Semaine type : grille 7 jours sur 24 heures. -->
+            <div class="border-filet mt-4 border-t pt-10">
+              <SemaineType />
+            </div>
+
+            <div class="mt-4 flex items-start gap-3">
+              <input
+                id="consentement"
+                name="consentement"
+                type="checkbox"
+                required
+                class="accent-accent mt-1 h-4 w-4"
+              />
+              <label for="consentement" class="text-texte-doux text-sm">
+                J’accepte que les informations saisies soient utilisées pour
+                traiter ma demande. Elles ne sont transmises à aucun tiers.
+                <a
+                  href="/politique-de-confidentialite"
+                  class="text-texte underline underline-offset-4"
+                >
+                  Politique de confidentialité
+                </a>.
+              </label>
+            </div>
+
+            <div class="mt-2">
+              <button
+                type="submit"
+                class="bg-accent text-sur-accent px-7 py-3.5 text-sm font-medium transition-opacity duration-[400ms] hover:opacity-85"
+              >
+                Envoyer
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Coordonnées -->
+        <aside class="lg:col-span-4">
+          <div class="border-filet border p-8">
+            <p class="micro text-accent-texte">Votre interlocuteur</p>
+            <p class="font-display mt-5 text-2xl">{entreprise.contact.interlocuteur}</p>
+
+            <dl class="mt-10 space-y-6 text-sm">
+              <div>
+                <dt class="micro text-texte-doux">Téléphone</dt>
+                <dd class="mt-2 text-lg">
+                  {
+                    tel ? (
+                      <a href={tel} class="hover:text-accent-texte">
+                        {entreprise.contact.telephone}
+                      </a>
+                    ) : (
+                      entreprise.contact.telephone
+                    )
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt class="micro text-texte-doux">Courriel</dt>
+                <dd class="mt-2">
+                  <a href={`mailto:${entreprise.contact.email}`} class="hover:text-accent-texte">
+                    {entreprise.contact.email}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt class="micro text-texte-doux">Siège</dt>
+                <dd class="mt-2">
+                  {entreprise.adresse.rue}<br />
+                  {entreprise.adresse.cp}&nbsp;{entreprise.adresse.ville}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Plaquette, tout en bas de la section Contact. -->
+      <div class="border-filet mt-20 border-t pt-12">
+        {
+          plaquetteDisponible ? (
+            <Bouton href={CHEMIN_PLAQUETTE} variante="contour" download>
+              Télécharger la plaquette (PDF)
+            </Bouton>
+          ) : (
+            <div class="flex flex-wrap items-center gap-4">
+              <Bouton variante="contour" desactive>
+                Télécharger la plaquette (PDF)
+              </Bouton>
+              <p class="micro text-texte-doux">Plaquette bientôt disponible</p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Base>

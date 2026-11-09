@@ -1,0 +1,39 @@
+---
+/**
+ * Mot-symbole typographique « ARKELYS SECURITY ».
+ *
+ * POURQUOI il existe : le logo fourni par le client est un PNG sans couche
+ * alpha, fond noir opaque incrusté (voir docs/LOGO.md). Il ne peut donc pas
+ * être posé sur une surface claire, et le site a maintenant un thème clair.
+ * Le brief prévoit explicitement ce repli.
+ *
+ * À SUPPRIMER le jour où le client fournit le SVG vectoriel transparent.
+ *
+ * Les couleurs viennent des tokens sémantiques : le mot-symbole suit donc le
+ * thème sans qu'on ait à lui passer quoi que ce soit.
+ */
+interface Props {
+  taille?: 'bandeau' | 'grand';
+  classe?: string;
+}
+
+const { taille = 'bandeau', classe = '' } = Astro.props;
+
+const tailles = {
+  bandeau: { principal: 'text-lg', secondaire: 'text-[0.6rem]' },
+  grand: { principal: 'text-3xl lg:text-4xl', secondaire: 'text-micro' },
+} as const;
+---
+
+<span class={`flex flex-col leading-none ${classe}`}>
+  <span
+    class={`${tailles[taille].principal} text-texte font-sans font-semibold tracking-[0.18em]`}
+  >
+    ARKELYS
+  </span>
+  <span
+    class={`${tailles[taille].secondaire} text-accent-texte mt-1 font-sans font-medium tracking-[0.34em]`}
+  >
+    SECURITY
+  </span>
+</span>

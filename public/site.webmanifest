@@ -1,0 +1,21 @@
+{
+  "name": "ARKELYS SECURITY",
+  "short_name": "ARKELYS",
+  "icons": [
+    {
+      "src": "/icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0b0b0c",
+  "background_color": "#0b0b0c",
+  "display": "standalone",
+  "start_url": "/",
+  "lang": "fr-FR"
+}

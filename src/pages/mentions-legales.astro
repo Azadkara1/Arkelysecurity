@@ -1,0 +1,111 @@
+---
+/**
+ * /mentions-legales. Une des deux seules pages réelles hors accueil.
+ *
+ * TODO CLIENT : faire relire par le conseil juridique avant mise en ligne.
+ * Les formulations reprennent l'usage, elles n'ont pas valeur d'avis
+ * juridique.
+ *
+ * Toutes les données viennent de src/data/entreprise.ts. Celles qui valent
+ * 'XX' s'affichent telles quelles, volontairement, jusqu'à arbitrage.
+ */
+import Base from '@layouts/Base.astro';
+import MentionCnaps from '@components/MentionCnaps.astro';
+import { entreprise } from '@data/entreprise';
+
+const editeur = [
+  { libelle: 'Dénomination sociale', valeur: entreprise.nom },
+  { libelle: 'Forme juridique', valeur: entreprise.formeJuridique },
+  { libelle: 'Capital social', valeur: entreprise.capital },
+  {
+    libelle: 'Siège social',
+    valeur: `${entreprise.adresse.rue}, ${entreprise.adresse.cp} ${entreprise.adresse.ville}`,
+  },
+  { libelle: 'RCS', valeur: entreprise.rcs },
+  { libelle: 'SIRET', valeur: entreprise.siret },
+  { libelle: 'Directeur de la publication', valeur: entreprise.directeurPublication },
+  { libelle: 'Téléphone', valeur: entreprise.contact.telephone },
+  { libelle: 'Courriel', valeur: entreprise.contact.email },
+];
+
+const hebergeur = [
+  { libelle: 'Hébergeur', valeur: entreprise.hebergeur.nom },
+  { libelle: 'Adresse', valeur: entreprise.hebergeur.adresse },
+  { libelle: 'Site', valeur: entreprise.hebergeur.url },
+];
+---
+
+<Base
+  titre="Mentions légales, ARKELYS SECURITY"
+  description="Mentions légales du site d'ARKELYS SECURITY : éditeur, hébergeur, autorisation d'exercice CNAPS et propriété intellectuelle."
+  filAriane={[{ libelle: 'Mentions légales', href: '/mentions-legales' }]}
+>
+  <section class="bg-surface text-texte">
+    <div class="contenu section-y">
+      <p class="micro text-accent-texte">Informations légales</p>
+      <h1 class="font-display mt-8 text-4xl leading-[0.95] lg:text-6xl">Mentions légales</h1>
+
+      <h2 class="font-display mt-20 text-2xl lg:text-3xl">Éditeur du site</h2>
+      <dl class="border-filet mt-8 border-t">
+        {
+          editeur.map((ligne) => (
+            <div class="border-filet flex flex-wrap gap-x-8 gap-y-1 border-b py-4">
+              <dt class="micro text-texte-doux w-full sm:w-72">{ligne.libelle}</dt>
+              <dd class="text-sm">{ligne.valeur}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <h2 class="font-display mt-20 text-2xl lg:text-3xl">Autorisation d’exercice</h2>
+      <p class="mesure text-texte-doux mt-6 text-sm">
+        L’activité de sécurité privée est réglementée par le livre VI du code
+        de la sécurité intérieure et placée sous le contrôle du Conseil
+        national des activités privées de sécurité (CNAPS).
+      </p>
+      <div class="mt-6">
+        <MentionCnaps />
+      </div>
+
+      <h2 class="font-display mt-20 text-2xl lg:text-3xl">Hébergement</h2>
+      <dl class="border-filet mt-8 border-t">
+        {
+          hebergeur.map((ligne) => (
+            <div class="border-filet flex flex-wrap gap-x-8 gap-y-1 border-b py-4">
+              <dt class="micro text-texte-doux w-full sm:w-72">{ligne.libelle}</dt>
+              <dd class="text-sm">{ligne.valeur}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <h2 class="font-display mt-20 text-2xl lg:text-3xl">Propriété intellectuelle</h2>
+      <p class="mesure text-texte-doux mt-6">
+        L’ensemble des contenus de ce site, textes, photographies, éléments
+        graphiques et logo, est protégé par le droit de la propriété
+        intellectuelle. Toute reproduction ou représentation, totale ou
+        partielle, sans autorisation écrite préalable est interdite.
+      </p>
+      <p class="mesure text-texte-doux mt-6">
+        Les marques et logos de clients éventuellement reproduits sur ce site
+        restent la propriété de leurs titulaires respectifs et ne sont
+        affichés qu’avec leur accord écrit.
+      </p>
+
+      <h2 class="font-display mt-20 text-2xl lg:text-3xl">Données personnelles et cookies</h2>
+      <p class="mesure text-texte-doux mt-6">
+        Ce site ne dépose aucun cookie de mesure d’audience, de publicité ou
+        de réseau social, et ne charge aucune police, carte ou script depuis
+        un domaine tiers. Le traitement des données transmises par le
+        formulaire est détaillé dans la{' '}
+        <a href="/politique-de-confidentialite" class="text-texte underline underline-offset-4">
+          politique de confidentialité
+        </a>.
+      </p>
+
+      <p class="text-texte-doux mt-16 text-sm">
+        Page à faire relire par le conseil juridique avant mise en ligne.
+      </p>
+    </div>
+  </section>
+</Base>

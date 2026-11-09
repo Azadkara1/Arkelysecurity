@@ -1,0 +1,68 @@
+# Déploiement Netlify, site statique Astro.
+#
+# ── OÙ PART LE COURRIEL DU FORMULAIRE ────────────────────────────────────────
+#
+# C'est NETLIFY FORMS qui envoie, pas le site. Le formulaire porte
+# data-netlify="true", un champ caché form-name et un honeypot. Au déploiement,
+# Netlify analyse le HTML statique, détecte le formulaire nommé "contact" et
+# intercepte les envois.
+#
+# Chaque envoi est stocké dans le tableau de bord Netlify :
+#   Site > Forms > contact
+#
+# La notification par courriel se règle DANS L'INTERFACE NETLIFY :
+#   Site configuration > Notifications > Form notifications
+#   > Add notification > Email notification
+#   Form: contact,  Email to notify: <adresse du client>
+#
+# Le destinataire n'est écrit NULLE PART dans ce dépôt, et c'est voulu :
+# changer l'adresse ne doit pas demander un redéploiement, et une adresse en
+# dur dans le code finit toujours par être oubliée. Netlify ne permet pas de
+# déclarer ces notifications dans ce fichier, c'est un réglage d'interface.
+#
+# Si le client préfère piloter l'adresse par variable d'environnement, il faut
+# passer par une fonction Netlify qui relaie vers un service d'envoi, et lire
+# l'adresse dans process.env. C'est plus de pièces mobiles pour le même
+# résultat : à ne faire que si le besoin est réel.
+#
+# EN LOCAL, AUCUN COURRIEL NE PART. `pnpm dev` sert un site statique : le POST
+# du formulaire n'est intercepté par personne et retombe en 404. C'est normal.
+# Pour tester de bout en bout :
+#   1. `pnpm dlx netlify-cli dev` reproduit l'environnement Netlify en local,
+#      mais la détection de formulaire se fait au déploiement : les envois ne
+#      remonteront toujours pas ;
+#   2. la seule méthode fiable est une PRÉVISUALISATION DE BRANCHE. On pousse
+#      une branche, Netlify construit une URL de prévisualisation, on envoie le
+#      formulaire depuis cette URL, et l'envoi apparaît dans Site > Forms.
+#      Les notifications de la production s'appliquent aussi aux
+#      prévisualisations : prévoir une adresse de test pendant la recette.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[build]
+  command = "pnpm run build:preprod"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # Le build de production complet est `pnpm build`. Il échoue tant qu'il
+  # reste des placeholders 'XX', un tiret cadratin, ou tant que la plaquette
+  # PDF n'est pas déposée dans public/.
+  # À BASCULER sur "pnpm build" avant la mise en ligne définitive.
+
+# Aucune ressource tierce n'est chargée par le site : la politique de sécurité
+# du contenu peut rester stricte.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
+
+# Les polices et les images optimisées portent une empreinte dans leur nom :
+# elles peuvent être mises en cache sans limite.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

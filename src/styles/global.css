@@ -1,0 +1,413 @@
+/* ===========================================================================
+   ARKELYS SECURITY, feuille de style globale
+   ---------------------------------------------------------------------------
+   Tailwind v4 : toute la configuration vit ici, dans @theme. Il n'y a pas de
+   tailwind.config.js et il ne doit pas y en avoir.
+
+   DEUX NIVEAUX DE TOKENS, et c'est important :
+
+   1. La PALETTE (ink-900, bone, gold...) donne les valeurs absolues. On ne
+      s'en sert plus directement dans les composants, sauf cas rare et
+      justifié.
+   2. Les tokens SÉMANTIQUES (surface, texte, filet, accent...) décrivent un
+      rôle, pas une couleur. Ce sont eux qu'on utilise partout.
+
+   C'est ce découplage qui rend le bouton « Changer de thème » possible : on
+   redéfinit huit variables sur <html>, et tout le site bascule. Si l'essai
+   n'est pas retenu, il suffit de figer les valeurs du thème sombre et de
+   retirer le bouton, sans toucher à un seul composant.
+   =========================================================================== */
+
+/* Polices auto-hébergées. Aucun appel au CDN Google Fonts : point de
+   conformité RGPD récurrent en France, et une requête externe en moins.
+   Fontsource découpe par unicode-range : seul le latin est téléchargé. */
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/inter/wght.css';
+
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   1. Tokens
+   --------------------------------------------------------------------------- */
+@theme {
+  /* On neutralise d'abord la palette Tailwind par défaut : si une couleur
+     générique (bg-blue-500, text-gray-400...) apparaît dans le code, elle ne
+     compile pas. C'est le garde-fou de la règle « aucune couleur en dur ».
+
+     ATTENTION : `--color-*: initial` efface TOUT le namespace couleur déclaré
+     avant lui. Il doit rester en PREMIER. */
+  --color-*: initial;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
+  /* === Palette absolue =================================================
+     La règle de l'or : moins de 5 % de la surface. Filets d'un pixel,
+     numéros de section, micro-libellés capitales, une seule valeur mise en
+     avant. Jamais de dégradé doré, jamais de grand aplat. */
+  --color-ink-900: #0b0b0c;
+  --color-ink-800: #141416;
+  --color-ink-700: #232327;
+  --color-bone: #f4f1ea;
+  --color-bone-2: #eae6dc; /* surface secondaire du thème clair */
+  --color-bone-dim: #a5a199;
+  --color-slate: #5a5752;
+  --color-slate-dim: #d8d4ca; /* filets du thème clair */
+  --color-gold: #c8a765;
+  --color-gold-dim: #8a7340;
+
+  /* === Tokens sémantiques ==============================================
+     Ils pointent vers des variables de thème redéfinies sur <html>.
+     Ce sont EUX qu'on utilise dans les composants. */
+  --color-surface: var(--t-surface);
+  --color-surface-2: var(--t-surface-2);
+  --color-filet: var(--t-filet);
+  --color-texte: var(--t-texte);
+  --color-texte-doux: var(--t-texte-doux);
+  /* L'or en APLAT et en filet décoratif. Identique dans les deux thèmes :
+     le brief autorise explicitement l'or en aplat sur fond clair, c'est le
+     texte qui pose problème. */
+  --color-accent: var(--t-accent);
+  /* L'or EN TEXTE : il échoue en contraste sur fond clair (2,0:1), le thème
+     clair bascule donc sur une couleur lisible. Toujours utiliser ce token
+     pour du texte d'accent, jamais `accent`. */
+  --color-accent-texte: var(--t-accent-texte);
+  /* BORDURE d'un composant (bouton, badge, état sélectionné). Doit tenir le
+     3:1 exigé pour un élément d'interface non textuel : l'or vrai ne le
+     tient pas sur fond clair (2,0:1), gold-dim si (4,0:1). */
+  --color-accent-bord: var(--t-accent-bord);
+  /* BORDURE d'un champ de formulaire. Les hairlines de section
+     (`--color-filet`) sont décoratives et peuvent rester discrètes ; la
+     bordure d'un champ, elle, porte l'information « ici on saisit » et doit
+     tenir le 3:1 contre le fond du champ. */
+  --color-bord-champ: var(--t-bord-champ);
+  /* Anneau de focus. Doit tenir le 3:1 contre le fond : l'or ne le tient pas
+     sur fond clair, le thème clair passe donc sur l'encre. */
+  --color-focus: var(--t-focus);
+  /* Texte posé SUR un aplat d'accent : l'encre dans les deux thèmes (8,6:1). */
+  --color-sur-accent: var(--t-sur-accent);
+
+  /* === Typographie ===================================================== */
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+
+  --text-micro: 0.6875rem; /* 11px, micro-libellés capitales */
+  --text-micro--line-height: 1.2;
+  --text-micro--letter-spacing: 0.14em;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 1.0625rem; /* 17px */
+  --text-base--line-height: 1.65;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.45;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.25;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 1.1;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 1;
+  --text-5xl: 4rem;
+  --text-5xl--line-height: 0.95;
+  --text-6xl: 5.25rem;
+  --text-6xl--line-height: 0.95;
+
+  /* === Grille et espace ================================================ */
+  --container-site: 80rem; /* 1280px */
+  --container-mesure: 68ch;
+  --spacing-gouttiere: 1.5rem;
+  --spacing-gouttiere-lg: 2.5rem;
+  --spacing-section: 6rem;
+  --spacing-section-lg: 10rem;
+  --spacing-bandeau: 4.75rem; /* 76px */
+
+  /* === Mouvement ======================================================= */
+  --ease-arkelys: cubic-bezier(0.16, 1, 0.3, 1);
+  --default-transition-timing-function: var(--ease-arkelys);
+  --default-transition-duration: 400ms;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Les deux thèmes
+   ---------------------------------------------------------------------------
+   Le thème est porté par `data-theme` sur <html>, posé par src/lib/theme.ts
+   avant le premier rendu. Défaut : sombre.
+
+   Le thème clair reprend exactement les valeurs des anciennes sections
+   claires et de l'ancienne page Méthode : fond bone, texte ink-900,
+   secondaire slate, filets slate à faible opacité.
+   --------------------------------------------------------------------------- */
+
+:root,
+:root[data-theme='sombre'] {
+  color-scheme: dark;
+  --t-surface: var(--color-ink-900);
+  --t-surface-2: var(--color-ink-800);
+  --t-filet: var(--color-ink-700);
+  --t-texte: var(--color-bone);
+  --t-texte-doux: var(--color-bone-dim);
+  --t-accent: var(--color-gold);
+  --t-accent-texte: var(--color-gold); /* or sur ink-900 : 8,6:1 */
+  --t-accent-bord: var(--color-gold); /* 8,6:1 */
+  --t-bord-champ: #6b6871; /* sur ink-800 : 3,4:1 */
+  --t-focus: var(--color-gold); /* 8,6:1 */
+  --t-sur-accent: var(--color-ink-900);
+  /* Grain : visible sur le noir, inutile sur le crème. */
+  --t-grain-opacite: 0.025;
+}
+
+:root[data-theme='clair'] {
+  color-scheme: light;
+  --t-surface: var(--color-bone);
+  --t-surface-2: var(--color-bone-2);
+  --t-filet: var(--color-slate-dim);
+  --t-texte: var(--color-ink-900);
+  --t-texte-doux: var(--color-slate);
+  /* L'or reste l'or en APLAT : l'encre posée dessus donne 8,6:1, et c'est ce
+     que le brief autorise sur fond clair. Un aplat de gold-dim, lui, ne
+     donnait que 4,3:1 avec l'encre, sous le seuil. */
+  --t-accent: var(--color-gold);
+  /* En TEXTE, l'or échoue : 2,0:1 sur bone, et gold-dim 4,0:1. Les deux
+     passent sous le 4,5:1 exigé. slate donne 6,4:1. */
+  --t-accent-texte: var(--color-slate);
+  /* En BORDURE de composant, le seuil est 3:1 : gold-dim le tient (4,0:1),
+     l'or vrai non (2,0:1). */
+  --t-accent-bord: var(--color-gold-dim);
+  --t-bord-champ: #7d7971; /* sur bone-2 : 3,5:1 */
+  /* L'anneau de focus en or ne donnerait que 2,0:1 sur le crème. */
+  --t-focus: var(--color-ink-900); /* 17,4:1 */
+  --t-sur-accent: var(--color-ink-900);
+  --t-grain-opacite: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   2 bis. Surface toujours sombre
+   ---------------------------------------------------------------------------
+   Le bandeau reste NOIR même en thème clair : le logo fourni a un fond noir
+   opaque incrusté (voir docs/LOGO.md), il ne passe que sur du noir.
+
+   Attention : `--color-surface: var(--t-surface)` est résolu sur :root, donc
+   redéfinir `--t-surface` sur un élément enfant ne changerait rien. Il faut
+   redéfinir les tokens `--color-*` eux-mêmes, directement sur l'élément.
+   Les valeurs reprennent exactement le thème sombre : mêmes contrastes, déjà
+   vérifiés.
+   --------------------------------------------------------------------------- */
+[data-surface='sombre'] {
+  color-scheme: dark;
+  --color-surface: var(--color-ink-900);
+  --color-surface-2: var(--color-ink-800);
+  --color-filet: var(--color-ink-700);
+  --color-texte: var(--color-bone);
+  --color-texte-doux: var(--color-bone-dim);
+  --color-accent: var(--color-gold);
+  --color-accent-texte: var(--color-gold);
+  --color-accent-bord: var(--color-gold);
+  --color-bord-champ: #6b6871;
+  --color-focus: var(--color-gold);
+  --color-sur-accent: var(--color-ink-900);
+}
+
+/* ---------------------------------------------------------------------------
+   3. Base
+   --------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    scroll-behavior: smooth;
+    /* Les ancres internes compensent la hauteur du bandeau fixe. Tout le
+       site est une page unique : ce réglage sert à chaque lien du bandeau. */
+    scroll-padding-top: calc(var(--spacing-bandeau) + 1.5rem);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--color-surface);
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-texte);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* La bascule de thème ne doit pas clignoter. */
+    transition:
+      background-color 400ms var(--ease-arkelys),
+      color 400ms var(--ease-arkelys);
+  }
+
+  /* Fraunces : graisse 400 à 600, jamais plus. SOFT et WONK à 0, on veut la
+     coupe nette. opsz suit la taille réelle. */
+  :is(h1, h2, h3, .font-display) {
+    font-family: var(--font-display);
+    font-variation-settings: 'SOFT' 0, 'WONK' 0;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Anneau de focus : `--color-focus`, pas `--color-accent`. L’or ne tient
+     pas le 3:1 exigé contre le crème du thème clair. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    color: inherit;
+  }
+
+  /* prefers-reduced-motion désactive TOUTES les transformations, sans
+     exception, y compris le défilement fluide vers les ancres. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    [data-apparition] {
+      transform: none !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   4. Utilitaires maison
+   --------------------------------------------------------------------------- */
+
+/* Conteneur de page : 1280 px, gouttière 24 puis 40 px. */
+@utility contenu {
+  width: 100%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gouttiere);
+
+  @media (width >= 48rem) {
+    padding-inline: var(--spacing-gouttiere-lg);
+  }
+}
+
+/* Respiration verticale entre sections : 96 puis 160 px. */
+@utility section-y {
+  padding-block: var(--spacing-section);
+
+  @media (width >= 64rem) {
+    padding-block: var(--spacing-section-lg);
+  }
+}
+
+/* Largeur de colonne de lecture confortable (68 caractères). */
+@utility mesure {
+  max-width: var(--container-mesure);
+}
+
+/* Micro-libellé : Inter 11 px, capitales, interlettrage 0.14em. */
+@utility micro {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  line-height: var(--text-micro--line-height);
+  letter-spacing: var(--text-micro--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Filet d'un pixel, seule séparation autorisée entre deux sections. */
+@utility filet {
+  border: 0;
+  border-top: 1px solid var(--color-accent);
+  opacity: 0.45;
+}
+
+/* Grain léger : feTurbulence en overlay. L'opacité est portée par le thème,
+   elle tombe à 0 en clair où le grain ne se verrait pas. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: var(--t-grain-opacite);
+    background-repeat: repeat;
+    background-image: var(--texture-grain);
+  }
+
+  & > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+/* Lien d'évitement, visible uniquement au focus clavier. */
+@utility lien-evitement {
+  position: absolute;
+  left: var(--spacing-gouttiere);
+  top: 0.5rem;
+  z-index: 70;
+  transform: translateY(-250%);
+  background-color: var(--color-surface-2);
+  color: var(--color-texte);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--color-accent);
+  transition: transform 200ms var(--ease-arkelys);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+/* Apparition au scroll : opacité plus 12 px de translation verticale. */
+@utility apparition {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 600ms var(--ease-arkelys),
+    transform 600ms var(--ease-arkelys);
+
+  &[data-visible='true'] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Puce de liste : un filet court, pas un tiret.
+   Le brief interdit désormais les tirets cadratins et demi-cadratins, y
+   compris décoratifs. Un trait dessiné en CSS ne pose pas ce problème et se
+   lit mieux. */
+@utility puce-filet {
+  display: inline-block;
+  flex: none;
+  width: 1rem;
+  height: 1px;
+  margin-top: 0.75rem;
+  background-color: var(--color-accent);
+}
+
+/* Texture de grain, hors @theme pour garder l'URI data lisible. */
+:root {
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+}

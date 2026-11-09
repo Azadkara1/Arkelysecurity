@@ -1,0 +1,8 @@
+# Fins de ligne LF partout : le build Netlify tourne sous Linux.
+* text=auto eol=lf
+
+# Fichiers binaires, jamais convertis.
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.pdf binary

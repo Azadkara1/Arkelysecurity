@@ -1,0 +1,298 @@
+---
+/**
+ * /styleguide, système de design. HORS PRODUCTION.
+ *
+ * `getStaticPaths` ne génère la route qu'en développement : la page n'existe
+ * pas dans le build livré, et n'est liée depuis nulle part.
+ *
+ * Elle sert surtout à juger la bascule de thème : tout ce qui est montré ici
+ * utilise les tokens sémantiques, donc tout doit rester lisible dans les deux
+ * thèmes. Le bouton de bascule est dans le bandeau.
+ *
+ * ÉCART ASSUMÉ AVEC LE BRIEF : le brief demandait `/_styleguide`. Astro
+ * ignore tout fichier ou dossier préfixé par `_` dans `src/pages/`.
+ */
+import Base from '@layouts/Base.astro';
+import Bouton from '@components/Bouton.astro';
+import MotSymbole from '@components/MotSymbole.astro';
+import PhotoPlaceholder from '@components/PhotoPlaceholder.astro';
+
+export const getStaticPaths = () => (import.meta.env.DEV ? [{ params: { rien: undefined } }] : []);
+
+/** Les classes de fond sont écrites en toutes lettres : Tailwind analyse le
+ *  source en texte, une classe construite ne serait jamais générée. */
+const semantiques = [
+  { token: 'surface', classe: 'bg-surface', usage: 'Fond principal' },
+  { token: 'surface-2', classe: 'bg-surface-2', usage: 'Cartes, sections creuses' },
+  { token: 'filet', classe: 'bg-filet', usage: 'Bordures et séparations' },
+  { token: 'texte', classe: 'bg-texte', usage: 'Texte principal' },
+  { token: 'texte-doux', classe: 'bg-texte-doux', usage: 'Texte secondaire' },
+  { token: 'accent', classe: 'bg-accent', usage: 'Aplats et filets d’accent' },
+];
+
+const palette = [
+  { token: 'ink-900', classe: 'bg-ink-900', valeur: '#0B0B0C' },
+  { token: 'ink-800', classe: 'bg-ink-800', valeur: '#141416' },
+  { token: 'ink-700', classe: 'bg-ink-700', valeur: '#232327' },
+  { token: 'bone', classe: 'bg-bone', valeur: '#F4F1EA' },
+  { token: 'bone-2', classe: 'bg-bone-2', valeur: '#EAE6DC' },
+  { token: 'bone-dim', classe: 'bg-bone-dim', valeur: '#A5A199' },
+  { token: 'slate', classe: 'bg-slate', valeur: '#5A5752' },
+  { token: 'slate-dim', classe: 'bg-slate-dim', valeur: '#D8D4CA' },
+  { token: 'gold', classe: 'bg-gold', valeur: '#C8A765' },
+  { token: 'gold-dim', classe: 'bg-gold-dim', valeur: '#8A7340' },
+];
+
+const echelle = [
+  { classe: 'text-6xl', libelle: '6xl, 84 px', famille: 'font-display' },
+  { classe: 'text-5xl', libelle: '5xl, 64 px', famille: 'font-display' },
+  { classe: 'text-4xl', libelle: '4xl, 48 px', famille: 'font-display' },
+  { classe: 'text-3xl', libelle: '3xl, 36 px', famille: 'font-display' },
+  { classe: 'text-2xl', libelle: '2xl, 28 px', famille: 'font-display' },
+  { classe: 'text-xl', libelle: 'xl, 22 px', famille: '' },
+  { classe: 'text-base', libelle: 'base, 17 px (corps)', famille: '' },
+  { classe: 'text-sm', libelle: 'sm, 14 px', famille: '' },
+];
+---
+
+<Base
+  titre="Système de design, ARKELYS SECURITY"
+  description="Page d'outillage interne : tokens sémantiques, échelle typographique, composants et états, dans les deux thèmes. Hors production."
+  sansIndexation
+>
+  <section class="bg-surface text-texte">
+    <div class="contenu section-y">
+      <p class="micro text-texte-doux">Outillage interne, hors production</p>
+      <h1 class="font-display mt-6 text-4xl leading-[0.95] lg:text-6xl">Système de design</h1>
+      <p class="mesure text-texte-doux mt-8">
+        Cette page n’est générée qu’en développement. Tout ce qu’elle montre
+        utilise les tokens sémantiques&nbsp;: basculez le thème avec le bouton
+        du bandeau, rien ne doit devenir illisible.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tokens sémantiques -->
+  <section class="bg-surface text-texte">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <p class="flex items-baseline gap-4">
+        <span class="micro text-accent-texte">01</span><span class="micro text-texte-doux"
+          >Tokens sémantiques</span
+        >
+      </p>
+      <h2 class="font-display mt-6 text-3xl lg:text-5xl">Des rôles, pas des couleurs</h2>
+      <p class="mesure text-texte-doux mt-8">
+        C’est ce découplage qui rend la bascule de thème possible&nbsp;: on
+        redéfinit huit variables sur la racine du document, et tout le site
+        suit. Aucune classe dupliquée.
+      </p>
+
+      <div class="mt-14 grid gap-px sm:grid-cols-2 lg:grid-cols-4">
+        {
+          semantiques.map((c) => (
+            <div class="border-filet border">
+              <div class={`h-24 ${c.classe}`} />
+              <div class="p-5">
+                <p class="micro text-texte">{c.token}</p>
+                <p class="text-texte-doux mt-3 text-sm">{c.usage}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="border-accent-bord mt-14 border-l-2 pl-6">
+        <p class="micro text-texte-doux">Piège de contraste</p>
+        <p class="mesure mt-3 text-sm">
+          L’or passe largement sur fond sombre (environ 9,4:1) mais échoue sur
+          fond clair (1,9:1), et <code class="text-xs">gold-dim</code> échoue
+          aussi (3,3:1). En thème clair, l’or ne sert donc qu’aux filets et aux
+          aplats&nbsp;: le token <code class="text-xs">accent-texte</code>{' '}
+          bascule sur <code class="text-xs">slate</code>, qui donne 7,1:1.
+          <strong class="font-medium">
+            Pour du texte d’accent, toujours <code class="text-xs">text-accent-texte</code>,
+            jamais <code class="text-xs">text-accent</code>.
+          </strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Palette absolue -->
+  <section class="bg-surface-2 text-texte">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <p class="flex items-baseline gap-4">
+        <span class="micro text-accent-texte">02</span><span class="micro text-texte-doux"
+          >Palette absolue</span
+        >
+      </p>
+      <h2 class="font-display mt-6 text-3xl lg:text-5xl">Les valeurs sous les rôles</h2>
+      <p class="mesure text-texte-doux mt-8">
+        À ne plus utiliser directement dans les composants, sauf cas rare et
+        justifié.
+      </p>
+
+      <div class="mt-14 grid gap-px sm:grid-cols-3 lg:grid-cols-6">
+        {
+          palette.map((c) => (
+            <div class="border-filet border">
+              <div class={`h-20 ${c.classe}`} />
+              <div class="p-4">
+                <p class="micro text-texte">{c.token}</p>
+                <p class="text-texte-doux mt-2 font-mono text-xs">{c.valeur}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Typographie -->
+  <section class="bg-surface text-texte">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <p class="flex items-baseline gap-4">
+        <span class="micro text-accent-texte">03</span><span class="micro text-texte-doux"
+          >Typographie</span
+        >
+      </p>
+      <h2 class="font-display mt-6 text-3xl lg:text-5xl">Fraunces et Inter</h2>
+
+      <div class="mt-14 space-y-8">
+        {
+          echelle.map((e) => (
+            <div class="border-filet flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b pb-6">
+              <span class="micro text-texte-doux w-40 shrink-0">{e.libelle}</span>
+              <span class={`${e.classe} ${e.famille} leading-[0.95]`}>
+                Prévenir, détecter, transmettre
+              </span>
+            </div>
+          ))
+        }
+        <div class="border-filet flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b pb-6">
+          <span class="micro text-texte-doux w-40 shrink-0">micro, 11 px</span>
+          <span class="micro text-texte-doux">Micro-libellé en capitales</span>
+        </div>
+      </div>
+
+      <div class="mt-14">
+        <p class="micro text-texte-doux">Colonne de lecture, 68 caractères</p>
+        <p class="mesure mt-4">
+          Un hôtel n’est jamais vide. C’est ce qui distingue sa surveillance de
+          celle d’un entrepôt ou d’un bureau&nbsp;: chaque geste se fait en
+          présence de clients, et la sécurité doit rester invisible pour eux.
+          Corps à 17&nbsp;px, interlignage 1,65.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Composants -->
+  <section class="bg-surface-2 text-texte">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <p class="flex items-baseline gap-4">
+        <span class="micro text-accent-texte">04</span><span class="micro text-texte-doux"
+          >Composants</span
+        >
+      </p>
+      <h2 class="font-display mt-6 text-3xl lg:text-5xl">Boutons, champs, cartes</h2>
+
+      <div class="mt-14 flex flex-wrap items-start gap-4">
+        <Bouton variante="plein">Contactez-nous</Bouton>
+        <Bouton variante="plein" secondeLigne="XX XX XX XX XX">Contactez-nous</Bouton>
+        <Bouton variante="contour">Contour</Bouton>
+        <Bouton variante="contour" desactive>Désactivé</Bouton>
+        <Bouton variante="discret">En savoir plus</Bouton>
+      </div>
+
+      <form class="mt-16 grid max-w-xl gap-6">
+        <div>
+          <label for="sg-nom" class="micro text-accent-texte block">Nom et prénom</label>
+          <input
+            id="sg-nom"
+            type="text"
+            class="border-bord-champ bg-surface text-texte focus:border-accent-bord mt-3 w-full border px-4 py-3 text-base outline-none"
+          />
+        </div>
+        <div class="flex items-start gap-3">
+          <input id="sg-rgpd" type="checkbox" class="accent-accent mt-1 h-4 w-4" />
+          <label for="sg-rgpd" class="text-texte-doux text-sm">
+            Case de consentement, jamais pré-cochée.
+          </label>
+        </div>
+      </form>
+
+      <div class="mt-16 grid gap-px sm:grid-cols-3">
+        {
+          [1, 2, 3].map((n) => (
+            <article class="border-filet bg-surface border p-8">
+              <p class="micro text-accent-texte">0{n}</p>
+              <h3 class="font-display mt-4 text-xl">Carte</h3>
+              <p class="text-texte-doux mt-4 text-sm">
+                Bordure d’un pixel, pas d’ombre portée. La hiérarchie se fait
+                par les filets et par le vide.
+              </p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="mt-16 flex flex-wrap items-end gap-12">
+        <MotSymbole taille="bandeau" />
+        <MotSymbole taille="grand" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Photographie et mouvement -->
+  <section class="bg-surface text-texte">
+    <hr class="filet" />
+    <div class="contenu section-y">
+      <p class="flex items-baseline gap-4">
+        <span class="micro text-accent-texte">05</span><span class="micro text-texte-doux"
+          >Photographie et mouvement</span
+        >
+      </p>
+      <h2 class="font-display mt-6 text-3xl lg:text-5xl">En attendant le shooting</h2>
+
+      <div class="mt-14 grid gap-6 lg:grid-cols-3">
+        <PhotoPlaceholder
+          fichier="hero-ronde-jour.jpg"
+          cadrage="Agent de dos en ronde extérieure, de jour."
+          format="4/5"
+        />
+        <PhotoPlaceholder
+          fichier="pc-securite.jpg"
+          cadrage="Poste de contrôle, écrans, main courante ouverte."
+          format="4/5"
+        />
+        <PhotoPlaceholder
+          fichier="prise-de-poste.jpg"
+          cadrage="Deux agents en relève, échange de consignes."
+          format="4/5"
+        />
+      </div>
+
+      <p class="mesure text-texte-doux mt-14 text-sm">
+        <strong class="text-texte font-medium">À tester&nbsp;:</strong> avec
+        <code class="text-xs">prefers-reduced-motion: reduce</code>, toutes les
+        transformations sont désactivées, y compris le défilement fluide vers
+        les ancres. Les blocs ci-dessous apparaissent alors d’un coup.
+      </p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-3">
+        {
+          ['Analyse du besoin', 'Définition du dispositif', 'Consignes et alerte'].map((t) => (
+            <div class="apparition border-filet border p-8" data-apparition>
+              <p class="font-display text-xl">{t}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>

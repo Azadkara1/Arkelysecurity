@@ -1,0 +1,71 @@
+---
+/**
+ * Section de la page unique.
+ *
+ * Le site n'alterne plus sombre et clair par section : un thème global est
+ * posé sur <html>, et le visiteur peut en changer. Le rythme vertical se
+ * fait donc par l'alternance `surface` et `surface-2`, qui fonctionne dans
+ * les deux thèmes, séparées par un filet d'un pixel. Jamais par un dégradé.
+ *
+ * Chaque section porte un `id` : c'est la cible des liens du bandeau.
+ */
+interface Props {
+  /** Ancre. Obligatoire : chaque section est une destination du bandeau. */
+  id: string;
+  /** Surface de fond. `creuse` utilise surface-2, pour le rythme. */
+  fond?: 'normale' | 'creuse';
+  /** Numéro de section affiché en accent, format « 01 ». */
+  numero?: string;
+  /** Micro-libellé en capitales, au-dessus du titre. */
+  surtitre?: string;
+  /** Titre de section. Rendu en h2 : le h1 appartient au hero. */
+  titre?: string;
+  /** Filet de séparation en haut de la section. */
+  filetHaut?: boolean;
+  /** Grain léger. Sans effet en thème clair, où son opacité tombe à zéro. */
+  grain?: boolean;
+  classe?: string;
+}
+
+const {
+  id,
+  fond = 'normale',
+  numero,
+  surtitre,
+  titre,
+  filetHaut = true,
+  grain = false,
+  classe = '',
+} = Astro.props;
+
+const classes = [
+  fond === 'creuse' ? 'bg-surface-2' : 'bg-surface',
+  'text-texte',
+  grain ? 'grain' : '',
+  classe,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<section id={id} class={classes}>
+  {filetHaut && <hr class="filet" />}
+  <div class="contenu section-y">
+    {
+      (numero || surtitre || titre) && (
+        <header class="apparition" data-apparition>
+          {(numero || surtitre) && (
+            <p class="flex items-baseline gap-4">
+              {numero && <span class="micro text-accent-texte">{numero}</span>}
+              {surtitre && <span class="micro text-texte-doux">{surtitre}</span>}
+            </p>
+          )}
+          {titre && (
+            <h2 class="font-display mt-6 text-3xl leading-[0.95] lg:text-5xl">{titre}</h2>
+          )}
+        </header>
+      )
+    }
+    <slot />
+  </div>
+</section>

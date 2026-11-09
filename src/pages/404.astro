@@ -1,0 +1,46 @@
+---
+/**
+ * 404.
+ *
+ * Le site étant une page unique, tout ce qui n'est pas l'accueil ou une page
+ * légale arrive ici. Les liens proposés sont des ancres de l'accueil.
+ */
+import Base from '@layouts/Base.astro';
+import Bouton from '@components/Bouton.astro';
+import { navigation } from '@data/site';
+---
+
+<Base
+  titre="Page introuvable, ARKELYS SECURITY"
+  description="La page demandée n'existe pas ou n'est plus disponible."
+  sansIndexation
+>
+  <section class="bg-surface text-texte grain">
+    <div class="contenu section-y flex min-h-[60vh] flex-col justify-center">
+      <p class="micro text-accent-texte">Erreur 404</p>
+      <h1 class="font-display mt-6 text-4xl leading-[0.95] lg:text-6xl">Page introuvable</h1>
+      <p class="mesure text-texte-doux mt-8">
+        La page que vous cherchez n’existe pas, ou n’est plus disponible. Tout
+        le site tient sur une seule page&nbsp;: voici ses sections.
+      </p>
+
+      <nav aria-label="Sections du site" class="mt-12">
+        <ul class="flex flex-wrap gap-x-8 gap-y-3">
+          {
+            navigation.map((lien) => (
+              <li>
+                <a href={`/${lien.href}`} class="text-texte-doux hover:text-texte text-sm">
+                  {lien.libelle}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="mt-14">
+        <Bouton href="/" variante="plein">Retour à l’accueil</Bouton>
+      </div>
+    </div>
+  </section>
+</Base>

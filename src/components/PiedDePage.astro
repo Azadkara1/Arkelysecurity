@@ -1,0 +1,108 @@
+---
+/**
+ * Pied de page.
+ *
+ * Même navigation que le bandeau : quatre ancres, rien d'autre. Les deux
+ * pages légales obligatoires et la mention CNAPS sont ici, et nulle part
+ * ailleurs.
+ */
+import { entreprise, lienTelephone } from '@data/entreprise';
+import { navigation, liensLegaux } from '@data/site';
+import MotSymbole from '@components/MotSymbole.astro';
+import MentionCnaps from '@components/MentionCnaps.astro';
+
+const surAccueil = Astro.url.pathname === '/' || Astro.url.pathname === '';
+const ancre = (href: string) => (surAccueil ? href : `/${href}`);
+
+const tel = lienTelephone();
+const annee = new Date().getFullYear();
+---
+
+<footer class="bg-surface-2 text-texte grain border-filet border-t">
+  <div class="contenu py-20 lg:py-28">
+    <div class="grid gap-14 lg:grid-cols-12">
+      <!-- Identité et coordonnées -->
+      <div class="lg:col-span-5">
+        <MotSymbole taille="grand" />
+
+        <p class="text-texte-doux mesure mt-8 text-sm">{entreprise.baseline}</p>
+
+        <dl class="mt-10 space-y-4 text-sm">
+          <div>
+            <dt class="micro text-accent-texte">Interlocuteur</dt>
+            <dd class="mt-1">{entreprise.contact.interlocuteur}</dd>
+          </div>
+          <div>
+            <dt class="micro text-accent-texte">Téléphone</dt>
+            <dd class="mt-1">
+              {
+                tel ? (
+                  <a href={tel} class="hover:text-accent-texte">
+                    {entreprise.contact.telephone}
+                  </a>
+                ) : (
+                  entreprise.contact.telephone
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt class="micro text-accent-texte">Courriel</dt>
+            <dd class="mt-1">
+              <a href={`mailto:${entreprise.contact.email}`} class="hover:text-accent-texte">
+                {entreprise.contact.email}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt class="micro text-accent-texte">Siège</dt>
+            <dd class="mt-1">
+              {entreprise.adresse.rue}<br />
+              {entreprise.adresse.cp}&nbsp;{entreprise.adresse.ville}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Navigation, identique au bandeau -->
+      <nav aria-label="Navigation du pied de page" class="lg:col-span-4">
+        <p class="micro text-accent-texte">Le site</p>
+        <ul class="mt-6 space-y-3">
+          {
+            navigation.map((lien) => (
+              <li>
+                <a href={ancre(lien.href)} class="text-texte-doux hover:text-texte text-sm">
+                  {lien.libelle}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav aria-label="Informations légales" class="lg:col-span-3">
+        <p class="micro text-accent-texte">Informations</p>
+        <ul class="mt-6 space-y-3">
+          {
+            liensLegaux.map((lien) => (
+              <li>
+                <a href={lien.href} class="text-texte-doux hover:text-texte text-sm">
+                  {lien.libelle}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <hr class="filet mt-16" />
+
+    <div class="mt-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <MentionCnaps />
+      <p class="micro text-texte-doux shrink-0">
+        © {annee} {entreprise.nom}
+      </p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,37 @@
+---
+/**
+ * Bloc de remplacement pour une photo non encore livrée.
+ *
+ * C'est laid, c'est voulu : une surface creuse au bon format, portant le nom
+ * du fichier attendu et la description du cadrage. Ça force la commande du
+ * shooting au lieu de laisser le site se contenter d'une banque d'images.
+ *
+ * La liste complète des prises de vue est dans public/photos/README.md.
+ *
+ * Quand la vraie photo arrive dans public/photos/, on remplace l'appel à ce
+ * composant par un <Image /> d'Astro (AVIF avec repli WebP, dimensions
+ * explicites, texte alternatif rédigé).
+ */
+interface Props {
+  /** Nom exact du fichier attendu, tel qu'il figure dans le README. */
+  fichier: string;
+  /** Description du cadrage demandé au photographe. */
+  cadrage: string;
+  /** Format, pour que le bloc occupe déjà la bonne place (CLS à zéro). */
+  format?: '21/9' | '16/9' | '3/2' | '4/5' | '1/1';
+  classe?: string;
+}
+
+const { fichier, cadrage, format = '3/2', classe = '' } = Astro.props;
+---
+
+<div
+  class={`bg-surface-2 border-filet relative flex flex-col justify-end border p-6 ${classe}`}
+  style={`aspect-ratio: ${format};`}
+  role="img"
+  aria-label={`Emplacement réservé pour une photographie : ${cadrage}`}
+>
+  <span class="micro text-accent-texte absolute top-6 left-6">Photo à livrer</span>
+  <p class="text-texte-doux font-mono text-xs">{fichier}</p>
+  <p class="text-texte-doux mt-2 max-w-[42ch] text-sm">{cadrage}</p>
+</div>

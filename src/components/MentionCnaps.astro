@@ -1,0 +1,30 @@
+---
+/**
+ * Mention CNAPS, obligatoire sur tous les documents commerciaux d'une
+ * activité de sécurité privée.
+ *
+ * Le numéro d'autorisation doit figurer, accompagné de la mention précisant
+ * que cette autorisation ne confère aucune prérogative de puissance publique.
+ *
+ * TODO CLIENT : la formulation exacte doit être validée par le client ou son
+ * conseil juridique avant mise en ligne. Le texte ci-dessous reprend la
+ * formulation d'usage, il n'a pas valeur d'avis juridique.
+ *
+ * TODO CLIENT : renseigner `entreprise.autorisationCnaps`. Tant qu'il vaut
+ * 'XX', le placeholder s'affiche en clair, volontairement visible.
+ */
+import { entreprise } from '@data/entreprise';
+
+interface Props {
+  classe?: string;
+}
+
+const { classe = '' } = Astro.props;
+---
+
+<p class={`text-texte-doux mesure text-sm ${classe}`}>
+  Autorisation d’exercice CNAPS n° <span class="text-texte font-medium"
+    >{entreprise.autorisationCnaps}</span
+  >. L’autorisation d’exercice ne confère aucune prérogative de puissance
+  publique à l’entreprise ou aux personnes qui en bénéficient.
+</p>

@@ -1,0 +1,147 @@
+---
+/**
+ * Bandeau de logos clients défilant, section Secteurs.
+ *
+ * Décision client : un bandeau qui défile DE GAUCHE À DROITE, pas une liste
+ * de cartes.
+ *
+ * Technique, sans une ligne de JavaScript :
+ *   une <ul> de logos dupliquée une fois, translatée de -50 % à 0 en CSS pur,
+ *   animation linéaire de 45 s. Les logos portent une marge droite et non un
+ *   `gap` : avec un `gap`, la boucle saute d'un intervalle à chaque tour.
+ *   Masque en dégradé sur les deux bords. Pause au survol et au focus
+ *   clavier. La copie porte `aria-hidden` pour ne pas doubler la liste au
+ *   lecteur d'écran.
+ *
+ * `prefers-reduced-motion: reduce` arrête l'animation et transforme le
+ * bandeau en rangée défilable à la main.
+ *
+ * RÈGLE : un logo n'apparaît QUE si `autoriseNomPublic` vaut `true`, ce qui
+ * suppose un accord écrit. Un logo est une marque déposée. Tant qu'aucun
+ * accord n'est enregistré, huit cases en pointillés.
+ */
+import { referencesPubliables } from '@data/references';
+
+interface Props {
+  titre?: string;
+}
+
+const { titre = 'Ils nous font confiance' } = Astro.props;
+
+const autorises = referencesPubliables();
+const PLACEHOLDERS = 8;
+---
+
+<div class="overflow-hidden">
+  <p class="micro text-accent-texte contenu">{titre}</p>
+
+  <div class="defilement-logos mt-10">
+    <ul class="piste" aria-label="Clients d’ARKELYS SECURITY">
+      {
+        autorises.length > 0
+          ? autorises.map((r) => (
+              <li class="jeton">
+                <img
+                  src={r.logo}
+                  alt={r.nom}
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
+                  class="h-12 w-auto object-contain"
+                />
+              </li>
+            ))
+          : Array.from({ length: PLACEHOLDERS }).map(() => (
+              <li class="jeton">
+                <span class="border-filet text-texte-doux flex h-20 w-44 items-center justify-center border border-dashed px-4 text-center">
+                  <span class="micro">Logo client, sur accord écrit</span>
+                </span>
+              </li>
+            ))
+      }
+    </ul>
+
+    <!-- Copie exacte, invisible aux technologies d'assistance : c'est elle
+         qui rend la boucle continue. -->
+    <ul class="piste" aria-hidden="true">
+      {
+        autorises.length > 0
+          ? autorises.map((r) => (
+              <li class="jeton">
+                <img
+                  src={r.logo}
+                  alt=""
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
+                  class="h-12 w-auto object-contain"
+                />
+              </li>
+            ))
+          : Array.from({ length: PLACEHOLDERS }).map(() => (
+              <li class="jeton">
+                <span class="border-filet text-texte-doux flex h-20 w-44 items-center justify-center border border-dashed px-4 text-center">
+                  <span class="micro">Logo client, sur accord écrit</span>
+                </span>
+              </li>
+            ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .defilement-logos {
+    display: flex;
+    width: 100%;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .piste {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* De -50 % à 0 : le défilement va de gauche à droite. */
+    animation: defiler 45s linear infinite;
+  }
+
+  .jeton {
+    flex: 0 0 auto;
+    margin-right: 4rem;
+  }
+
+  @keyframes defiler {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .defilement-logos:hover .piste,
+  .defilement-logos:focus-within .piste {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .defilement-logos {
+      overflow-x: auto;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .piste {
+      animation: none;
+      transform: none;
+    }
+
+    .piste[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>
