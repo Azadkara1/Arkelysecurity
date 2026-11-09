@@ -1,6 +1,13 @@
-# esbuild et sharp résolvent leurs binaires via des dépendances optionnelles
-# propres à la plateforme : leur script postinstall n'est pas nécessaire.
-# On les déclare ignorés pour que `pnpm add` ne sorte pas en erreur.
-ignoredBuiltDependencies:
-  - esbuild
-  - sharp
+# pnpm 12 exige d'approuver explicitement les paquets qui exécutent un script
+# à l'installation. Sans cette liste, `pnpm install` SORT EN ERREUR
+# (ERR_PNPM_IGNORED_BUILDS), ce qui fait échouer le build Netlify.
+#
+# Le réglage s'appelle `allowBuilds` depuis pnpm 11. Les anciens noms
+# (`onlyBuiltDependencies` dans package.json, `ignoredBuiltDependencies`) ne
+# sont plus reconnus.
+#
+#   esbuild : le bundler de Vite, vérifie son binaire à l'installation.
+#   sharp   : l'optimisation d'images d'Astro, vérifie ses binaires natifs.
+allowBuilds:
+  esbuild: true
+  sharp: true
